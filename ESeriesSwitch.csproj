@@ -12,10 +12,12 @@
     <AssemblyTitle>E-Series ⇄ ISTA+ Switch</AssemblyTitle>
     <Product>ESeriesSwitch</Product>
     <Description>Switches the Windows environment between legacy BMW E-series coding tools and factory ISTA+.</Description>
-    <Authors>Brendon Scheiber</Authors>
-    <Copyright>Copyright © 2026 Brendon Scheiber. MIT License.</Copyright>
-    <RepositoryUrl>https://github.com/brandonvers/ESeriesSwitch</RepositoryUrl>
-    <Version>1.2.0</Version>
+    <Authors>BimmerDock</Authors>
+    <Company>BimmerDock</Company>
+    <Copyright>Copyright © 2026 BimmerDock. MIT License.</Copyright>
+    <PackageProjectUrl>https://bimmerdock.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/BimmerDock/ESeriesSwitch</RepositoryUrl>
+    <Version>1.2.1</Version>
 
     <!-- The WPF Fluent theme (ThemeMode) is still marked as experimental -->
     <NoWarn>$(NoWarn);WPF0001</NoWarn>

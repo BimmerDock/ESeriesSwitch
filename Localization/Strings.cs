@@ -67,14 +67,18 @@ namespace ESeriesSwitch.Localization
             ["ErrRestart"] = "Could not start the restart:\n\n{0}",
             ["ErrIniWrite"] = "Could not modify EDIABAS.INI:\n\n{0}",
             ["ErrInterfaceLineMissing"] = "No 'Interface' line was found in the [Configuration] section of EDIABAS.INI.",
+            ["MadeBy"] = "Made by",
             ["AboutText"] =
-                "E-Series ⇄ ISTA+ Switch  v{0}\n\n" +
-                "Free, open-source tool (MIT License).\n{1}\n\n" +
+                "E-Series ⇄ ISTA+ Switch  v{0}\n" +
+                "© 2026 BimmerDock\n\n" +
+                "Website:  {1}\n" +
+                "Source code:  {2}\n\n" +
+                "Free, open-source tool (MIT License).\n\n" +
                 "Not affiliated with, endorsed or supported by BMW AG. BMW, MINI, ISTA, INPA, WinKFP, NCS Expert and EDIABAS " +
                 "are trademarks of their respective owners.\n\n" +
-                "Use at your own risk. The software is provided “as is”, without warranty of any kind. The author accepts no " +
+                "Use at your own risk. The software is provided “as is”, without warranty of any kind. BimmerDock accepts no " +
                 "liability for any damage to vehicles, control units, computers or data.\n\n" +
-                "Open the GitHub page?",
+                "Open bimmerdock.com?",
         };
 
         public static readonly Dictionary<string, string> Hungarian = new()
@@ -141,15 +145,19 @@ namespace ESeriesSwitch.Localization
             ["ErrRestart"] = "Nem sikerült elindítani az újraindítást:\n\n{0}",
             ["ErrIniWrite"] = "Az EDIABAS.INI módosítása nem sikerült:\n\n{0}",
             ["ErrInterfaceLineMissing"] = "Az EDIABAS.INI [Configuration] részében nem található 'Interface' sor.",
+            ["MadeBy"] = "Készítette:",
             ["AboutText"] =
-                "E-Series ⇄ ISTA+ Switch  v{0}\n\n" +
-                "Ingyenes, nyílt forráskódú program (MIT licenc).\n{1}\n\n" +
+                "E-Series ⇄ ISTA+ Switch  v{0}\n" +
+                "© 2026 BimmerDock\n\n" +
+                "Weboldal:  {1}\n" +
+                "Forráskód:  {2}\n\n" +
+                "Ingyenes, nyílt forráskódú program (MIT licenc).\n\n" +
                 "Nem kapcsolódik a BMW AG-hez, és a BMW AG nem támogatja vagy hagyja jóvá. A BMW, MINI, ISTA, INPA, WinKFP, " +
                 "NCS Expert és EDIABAS nevek a jogtulajdonosaik védjegyei.\n\n" +
                 "Használata saját felelősségre történik. A program „ahogy van” alapon, mindennemű garancia nélkül érhető el. " +
-                "A szerző semmilyen felelősséget nem vállal a járművekben, vezérlőegységekben, számítógépekben vagy adatokban " +
+                "A BimmerDock semmilyen felelősséget nem vállal a járművekben, vezérlőegységekben, számítógépekben vagy adatokban " +
                 "keletkező károkért.\n\n" +
-                "Megnyitod a GitHub oldalt?",
+                "Megnyitod a bimmerdock.com oldalt?",
         };
     }
 }

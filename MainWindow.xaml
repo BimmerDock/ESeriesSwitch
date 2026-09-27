@@ -182,5 +182,17 @@
             <TextBlock x:Name="VersionText" Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center"
                        FontSize="12" Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
         </Grid>
+
+        <!-- Branding -->
+        <Separator Margin="0,18,0,10"/>
+        <TextBlock HorizontalAlignment="Center" FontSize="12"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+            <Run Text="{Binding [MadeBy], Source={x:Static loc:Loc.Instance}, Mode=OneWay}"/>
+            <Run Text="BimmerDock" FontWeight="SemiBold"/>
+            <Run Text="·"/>
+            <Hyperlink NavigateUri="https://bimmerdock.com" RequestNavigate="Link_RequestNavigate">bimmerdock.com</Hyperlink>
+            <Run Text="·"/>
+            <Hyperlink NavigateUri="https://github.com/BimmerDock/ESeriesSwitch" RequestNavigate="Link_RequestNavigate">GitHub</Hyperlink>
+        </TextBlock>
     </StackPanel>
 </Window>

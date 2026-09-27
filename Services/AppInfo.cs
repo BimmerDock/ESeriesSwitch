@@ -2,8 +2,10 @@ namespace ESeriesSwitch.Services
 {
     public static class AppInfo
     {
-        public const string RepositoryUrl = "https://github.com/brandonvers/ESeriesSwitch";
-        public const string LatestReleaseApiUrl = "https://api.github.com/repos/brandonvers/ESeriesSwitch/releases/latest";
+        public const string Publisher = "BimmerDock";
+        public const string WebsiteUrl = "https://bimmerdock.com";
+        public const string RepositoryUrl = "https://github.com/BimmerDock/ESeriesSwitch";
+        public const string LatestReleaseApiUrl = "https://api.github.com/repos/BimmerDock/ESeriesSwitch/releases/latest";
 
         public static Version Version { get; } = Normalize(typeof(AppInfo).Assembly.GetName().Version ?? new Version(0, 0, 0));
 

@@ -266,10 +266,16 @@ namespace ESeriesSwitch
 
         void About_Click(object sender, RoutedEventArgs e)
         {
-            var answer = MessageBox.Show(this, Loc.T("AboutText", AppInfo.VersionText, AppInfo.RepositoryUrl),
+            var answer = MessageBox.Show(this, Loc.T("AboutText", AppInfo.VersionText, AppInfo.WebsiteUrl, AppInfo.RepositoryUrl),
                 Title, MessageBoxButton.YesNo, MessageBoxImage.Information);
             if (answer == MessageBoxResult.Yes)
-                OpenUrl(AppInfo.RepositoryUrl);
+                OpenUrl(AppInfo.WebsiteUrl);
+        }
+
+        void Link_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            OpenUrl(e.Uri.AbsoluteUri);
+            e.Handled = true;
         }
 
         void SetBusy(bool busy)

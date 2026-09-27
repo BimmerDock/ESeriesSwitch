@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  Készítette: <a href="https://bimmerdock.com"><b>BimmerDock</b></a> · <a href="https://bimmerdock.com">bimmerdock.com</a>
+</p>
+
+<p align="center">
   🇬🇧 <a href="README.md">English README</a>
 </p>
 
@@ -57,7 +61,7 @@ Tesztelve: Windows 11, EDIABAS 7.6.0, BMW AOS-ból letöltött ISTA+ és ICOM Ne
 
 ## Letöltés és használat
 
-1. Töltsd le az `ESeriesSwitch.exe`-t a [**Releases**](https://github.com/brandonvers/ESeriesSwitch/releases) oldalról.
+1. Töltsd le az `ESeriesSwitch.exe`-t a [**Releases**](https://github.com/BimmerDock/ESeriesSwitch/releases) oldalról.
 2. Tedd bárhova (Asztal, tools mappa vagy pendrive), és indítsd el. Hagyd jóvá a UAC-kérést.
 3. Az állapotkártyán látod, melyik mód aktív.
 4. Kattints a **Váltás E-szériás toolokra** vagy a **Váltás gyári ISTA+ -ra** gombra.
@@ -159,7 +163,7 @@ A mentések helye: `C:\ProgramData\ESeriesSwitch\Backups\`. A **Mentések mappá
 - WPF, .NET 10, C#
 
 ```bash
-git clone https://github.com/brandonvers/ESeriesSwitch.git
+git clone https://github.com/BimmerDock/ESeriesSwitch.git
 cd ESeriesSwitch
 dotnet build
 ```
@@ -177,7 +181,7 @@ Az app rendszergazdai jogot igényel, ezért F5-tel debugoláshoz rendszergazdak
 
 > **A program használata kizárólag saját felelősségre történik.**
 >
-> A program „ahogy van” alapon, mindennemű kifejezett vagy hallgatólagos garancia nélkül érhető el. A szerző **semmilyen felelősséget nem vállal** a program használatából vagy helytelen használatából eredő közvetlen vagy közvetett károkért. Ide tartoznak többek között a járművekben, vezérlőegységekben (ECU), diagnosztikai interfészekben, számítógépekben, szoftvertelepítésekben vagy adatokban keletkező károk, valamint az adatvesztés és a kiesett munkaidő.
+> A program „ahogy van” alapon, mindennemű kifejezett vagy hallgatólagos garancia nélkül érhető el. A BimmerDock és a közreműködők **semmilyen felelősséget nem vállalnak** a program használatából vagy helytelen használatából eredő közvetlen vagy közvetett károkért. Ide tartoznak többek között a járművekben, vezérlőegységekben (ECU), diagnosztikai interfészekben, számítógépekben, szoftvertelepítésekben vagy adatokban keletkező károk, valamint az adatvesztés és a kiesett munkaidő.
 >
 > A járműveken végzett diagnosztikai, kódolási és programozási műveletek hibás végrehajtás esetén véglegesen károsíthatják a vezérlőegységeket. Ez a program csak Windows-beállításokat módosít, de a te felelősséged tudni, mit csinálnak az utána futtatott diagnosztikai programok. Mindig készíts saját mentést.
 
@@ -189,10 +193,11 @@ A tároló **nem** tartalmaz BMW-szoftvert, adatfájlokat vagy más, jogvédett 
 
 ## Licenc
 
-[MIT](LICENSE) © 2026 Brendon Scheiber. A licenc hivatalos szövege angol nyelvű.
+[MIT](LICENSE) © 2026 [BimmerDock](https://bimmerdock.com). A licenc hivatalos szövege angol nyelvű.
 
 ## Verziók
 
+- **1.2.1**: átkerült a [BimmerDock](https://github.com/BimmerDock) organization alá, BimmerDock megjelenés és weboldal-link az appban
 - **1.2.0**: értesítés, ha újabb kiadás érhető el a GitHubon
 - **1.1.0**
   - Angol és magyar felület, nyelvváltóval

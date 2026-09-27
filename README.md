@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  Made by <a href="https://bimmerdock.com"><b>BimmerDock</b></a> · <a href="https://bimmerdock.com">bimmerdock.com</a>
+</p>
+
+<p align="center">
   🇭🇺 <a href="README.hu.md">Magyar leírás / Hungarian README</a>
 </p>
 
@@ -57,7 +61,7 @@ Tested with Windows 11, EDIABAS 7.6.0, ISTA+ from BMW AOS and an ICOM Next.
 
 ## Download and usage
 
-1. Download `ESeriesSwitch.exe` from the [**Releases**](https://github.com/brandonvers/ESeriesSwitch/releases) page.
+1. Download `ESeriesSwitch.exe` from the [**Releases**](https://github.com/BimmerDock/ESeriesSwitch/releases) page.
 2. Put it anywhere (desktop, tools folder or USB stick) and run it. Confirm the UAC prompt.
 3. Read the current mode on the status card.
 4. Click **Switch to E-series tools** or **Switch to factory ISTA+**.
@@ -159,7 +163,7 @@ Backups are stored in `C:\ProgramData\ESeriesSwitch\Backups\`. Open this folder 
 - WPF, .NET 10, C#
 
 ```bash
-git clone https://github.com/brandonvers/ESeriesSwitch.git
+git clone https://github.com/BimmerDock/ESeriesSwitch.git
 cd ESeriesSwitch
 dotnet build
 ```
@@ -177,7 +181,7 @@ The app requires administrator rights, so start Visual Studio as administrator t
 
 > **Use this software entirely at your own risk.**
 >
-> This software is provided "as is", without warranty of any kind, express or implied. The author accepts **no liability whatsoever** for any direct or indirect damage, including damage to vehicles, control units (ECUs), diagnostic interfaces, computers, software installations or data, and including loss of data or downtime, arising from the use or misuse of this software.
+> This software is provided "as is", without warranty of any kind, express or implied. BimmerDock and the contributors accept **no liability whatsoever** for any direct or indirect damage, including damage to vehicles, control units (ECUs), diagnostic interfaces, computers, software installations or data, and including loss of data or downtime, arising from the use or misuse of this software.
 >
 > Diagnostic, coding and programming operations on vehicles can permanently damage control units if done incorrectly. This tool only changes Windows settings, but it is your responsibility to know what the diagnostic tools you run afterwards will do. Always make your own backups.
 
@@ -189,10 +193,11 @@ This repository contains **no** BMW software, data files or other proprietary ma
 
 ## License
 
-[MIT](LICENSE) © 2026 Brendon Scheiber
+[MIT](LICENSE) © 2026 [BimmerDock](https://bimmerdock.com)
 
 ## Changelog
 
+- **1.2.1**: moved to the [BimmerDock](https://github.com/BimmerDock) organization, BimmerDock branding and website link in the app
 - **1.2.0**: update notification when a newer release is available on GitHub
 - **1.1.0**
   - English and Hungarian user interface with a language switcher
