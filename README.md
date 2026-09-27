@@ -44,7 +44,7 @@ So the legacy tools only work **with** the environment variables, and ISTA+ only
 - **One-click switching** in both directions.
 - **Automatic backup** of the previous values before every change.
 - **Safe PATH handling**: only the EDIABAS entry is added or removed. The rest of `PATH` and its registry type (`REG_EXPAND_SZ`) are left untouched, so entries like `%SystemRoot%\system32` keep working.
-- **EDIABAS interface toggle** between ICOM and Offline, which avoids the `NET-0009: TIMEOUT` error when no ICOM is connected ([details below](#ediabas-interface-icom--offline)).
+- **EDIABAS interface selection** (ICOM, ENET, K+DCAN or Offline), with the ICOM IP, the ENET address and the K+DCAN COM port editable in the app. Offline avoids the `NET-0009: TIMEOUT` error when no ICOM is connected ([details below](#ediabas-interface-icom--enet--kdcan--offline)).
 - **Restart offer** after switching.
 - **Warnings** if the EDIABAS folder is missing or if user-level variables could override the system ones.
 - **English and Hungarian** user interface, switchable at any time.
@@ -92,7 +92,7 @@ The app works on the system environment variables in the registry:
 
 Environment variable names and paths are case-insensitive on Windows. The variable is written as `ediabas_config_dir`, which is the same variable as `EDIABAS_CONFIG_DIR`.
 
-## EDIABAS interface (ICOM / Offline)
+## EDIABAS interface (ICOM / ENET / K+DCAN / Offline)
 
 The `Interface` line in `EDIABAS.INI` tells EDIABAS which diagnostic interface to use. With an ICOM this is `RPLUS:ICOM_P`. In that setting, **INPA and Tool32 look for the ICOM as soon as they start**. If no ICOM is connected, you get this error after about 20 seconds:
 
@@ -102,26 +102,49 @@ NET-0009: TIMEOUT
 API initialization error
 ```
 
-The *EDIABAS interface* card shows the current setting and switches it with one click:
+The *EDIABAS interface* card shows the current setting (always read fresh from the INI files) and switches it with one click:
 
-| Button | Value written | When to use it |
+| Button | `Interface` | `LoadWin64` | When to use it |
+|---|---|---|---|
+| **ICOM** | `RPLUS:ICOM_P` | `1` | E-series cars with an ICOM (INPA, Tool32, NCS Expert). Reserve the ICOM in **ITool Radar** first |
+| **ENET** | `ENET` | `1` | F/G-series cars (e.g. INPA64 / Tool64) with an ENET cable or an ICOM Next |
+| **K+DCAN** | `STD:OBD` | `0` | E-series cars with a K+DCAN USB cable. Set the port's latency to **1 ms** in Device Manager |
+| **Offline** | `NUL` | unchanged | No interface connected. INPA / Tool32 start without the error, but cannot talk to the car |
+
+`LoadWin64` (in `EDIABAS.INI` → `[Configuration]`) selects the 64-bit (`1`) or 32-bit (`0`) EDIABAS. The app sets it together with the interface, following the EDIABAS 7.7 configuration guide. If it does not match the selected interface (e.g. after a manual edit), the card shows a warning, and clicking the active interface button again fixes it.
+
+**ENET connection:** in ENET mode you can also choose how the car is connected. This sets the ports in `EDIABAS.INI` → `[XEthernet]`:
+
+| Choice | `ControlPort` | `DiagnosticPort` |
 |---|---|---|
-| **ICOM** | `RPLUS:ICOM_P` | ICOM connected to the car. Diagnostics, coding, programming |
-| **Offline** | `NUL` | No ICOM connected. INPA / Tool32 start without the error, but cannot talk to the car |
+| **ENET cable** | `6811` | `6801` |
+| **ICOM Next** | `50161` | `50160` |
 
-- The INI is **only** changed when you click one of these buttons. Switching modes never touches it.
-- Only the value of this single line in the `[Configuration]` section is replaced. The rest of the file stays byte-for-byte identical.
-- A copy of the INI is saved to the backups folder before every change.
+**Connection settings:** in ICOM, ENET and K+DCAN mode a field appears under the buttons. Type the new value and click **Save** (or press Enter):
+
+| Mode | Field | Stored in | Allowed values |
+|---|---|---|---|
+| ICOM | ICOM IP address | `Rplus.ini` → `[ICOM_P]` → `RemoteHost` | IPv4 address, e.g. `169.254.92.38` (shown in ITool Radar). `0.0.0.0` means *not set* |
+| ENET | Vehicle / ICOM IP | `EDIABAS.INI` → `[XEthernet]` → `RemoteHost` | `Autodetect` (default), or an IPv4 address, e.g. the ICOM's IP when using an ICOM Next |
+| K+DCAN | COM port | `obd.ini` → `[OBD]` → `Port` | `COM1` … `COM256`, written as e.g. `Com3` |
+
+All three files are in the EDIABAS `BIN` folder.
+
+> The MOST interface for WinKFP with an ICOM-B (`RPLUS:MOST_ASYNC`) is not managed by the app. If it is set, the card shows *Other interface*.
+
+- The INI files are **only** changed when you click an interface button or **Save**. Switching modes never touches them.
+- Only the value of that single line is replaced. The rest of the file stays byte-for-byte identical, and no lines are added or removed.
+- A copy of the file is saved to the backups folder before every change.
 - The change takes effect the next time INPA or Tool32 starts. No restart is needed.
-
-> If you use a **K+DCAN cable** (`STD:OBD`) or **ENET** instead of an ICOM, the card shows *Other interface*. Don't use the two buttons in that case, because they would replace your setting with ICOM or NUL.
 
 ## What the app changes and what it does not
 
 **Changes:**
 - the system variable `EDIABAS_CONFIG_DIR`
 - the EDIABAS `BIN` entry in the system `PATH`
-- the `Interface` line in `EDIABAS.INI`, **only** when you click *ICOM* or *Offline*
+- the `Interface` and `LoadWin64` lines in `EDIABAS.INI`, **only** when you click an interface button
+- the ENET ports in `EDIABAS.INI` (`[XEthernet] ControlPort` / `DiagnosticPort`), **only** when you choose *ENET cable* or *ICOM Next*
+- the ICOM address in `Rplus.ini` (`[ICOM_P] RemoteHost`), the ENET address in `EDIABAS.INI` (`[XEthernet] RemoteHost`) or the K+DCAN COM port in `obd.ini` (`[OBD] Port`), **only** when you click *Save*
 
 **Creates:**
 - backup files and `settings.json` (the chosen language) in `C:\ProgramData\ESeriesSwitch\`
@@ -129,7 +152,7 @@ The *EDIABAS interface* card shows the current setting and switches it with one 
 **Never touches:**
 - user-level environment variables (it only reads them and warns you)
 - ISTA+, INPA, WinKFP, NCS Expert or any of their files
-- the rest of `EDIABAS.INI` and of `C:\EC-APPS`
+- the rest of `EDIABAS.INI`, `Rplus.ini`, `obd.ini` and `C:\EC-APPS`
 - network settings, the ICOM or Windows services
 
 **Network:** the only connection the app makes is the update check, a single request to `api.github.com` on startup that reads the latest release number. No data about you or your PC is sent, and nothing is downloaded automatically. If the PC is offline, the check is skipped silently.
@@ -139,20 +162,20 @@ The *EDIABAS interface* card shows the current setting and switches it with one 
 Backups are stored in `C:\ProgramData\ESeriesSwitch\Backups\`. Open this folder with the **Backups folder** button.
 
 - `backup_YYYYMMDD_HHMMSS.json` contains the environment **before** a switch: `Path`, `PathKind` and `EdiabasConfigDir`.
-- `EDIABAS_YYYYMMDD_HHMMSS.INI` contains a copy of `EDIABAS.INI` **before** an interface change.
+- `EDIABAS_…`, `Rplus_…` and `obd_YYYYMMDD_HHMMSS.ini` contain a copy of the file **before** an interface or connection setting change.
 
 **Manual restore of the environment:**
 1. Open *System Properties* → *Environment Variables…* (or run `rundll32 sysdm.cpl,EditEnvironmentVariables` as administrator).
 2. Under *System variables*, edit `Path`, click *Edit text…* and paste the `Path` value from the backup file.
 3. Set or delete `EDIABAS_CONFIG_DIR` to match `EdiabasConfigDir` from the backup.
 
-**Manual restore of `EDIABAS.INI`:** copy the backup `.INI` file back to the EDIABAS `BIN` folder and rename it to `EDIABAS.INI`.
+**Manual restore of `EDIABAS.INI` / `Rplus.ini` / `obd.ini`:** copy the backup file back to the EDIABAS `BIN` folder and rename it to its original name.
 
 ## Troubleshooting
 
 | Symptom | Cause and fix |
 |---|---|
-| `NET-0009: TIMEOUT` when INPA / Tool32 starts | EDIABAS is set to ICOM, but no ICOM is connected or the ICOM is still reserved by ISTA+. Connect the ICOM (ignition on) or click **Offline**. If ISTA+ was used before, release the ICOM in ITool Radar or unplug it for about 10 seconds. |
+| `NET-0009: TIMEOUT` when INPA / Tool32 starts | EDIABAS is set to ICOM, but no ICOM is connected or the ICOM is still reserved by ISTA+. Connect the ICOM (ignition on) and check that the **ICOM IP address** matches the one in ITool Radar, or click **Offline**. If ISTA+ was used before, release the ICOM in ITool Radar or unplug it for about 10 seconds. |
 | ISTA+ misbehaves after switching to ISTA+ mode | Restart the computer so that every process and service starts with the clean environment. |
 | A tool still sees the old setting | Programs that were already running keep their old environment. Restart the program or the computer. |
 | Warning about user variables | `EDIABAS_CONFIG_DIR` or the EDIABAS folder is also set among your **user** variables, which can override the system ones. Remove it by hand under *Environment Variables* → *User variables*. |
@@ -197,6 +220,14 @@ This repository contains **no** BMW software, data files or other proprietary ma
 
 ## Changelog
 
+- **1.3.0**
+  - Interface selection extended: ICOM, ENET, K+DCAN and Offline
+  - ICOM IP address (`Rplus.ini`), ENET address (`EDIABAS.INI`) and K+DCAN COM port (`obd.ini`) editable in the app, always read fresh from the INI files
+  - `LoadWin64` set automatically with the interface (ICOM / ENET: 1, K+DCAN: 0), with a warning if it does not match
+  - ENET connection choice: ENET cable (ports 6811 / 6801) or ICOM Next (ports 50161 / 50160)
+  - Setup hints for each interface (ITool Radar reservation, 1 ms latency for K+DCAN)
+  - Backups of the INI files always keep the original state, even when one action changes several lines
+  - Rounded toggle buttons for the language and interface selection
 - **1.2.1**: moved to the [BimmerDock](https://github.com/BimmerDock) organization, BimmerDock branding and website link in the app
 - **1.2.0**: update notification when a newer release is available on GitHub
 - **1.1.0**

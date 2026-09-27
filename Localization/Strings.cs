@@ -1,4 +1,4 @@
-namespace ESeriesSwitch.Localization
+﻿namespace ESeriesSwitch.Localization
 {
     /// <summary>All UI texts in English and Hungarian. Keys missing from Hungarian fall back to English.</summary>
     static class Strings
@@ -27,10 +27,27 @@ namespace ESeriesSwitch.Localization
             ["InterfaceOfflineTitle"] = "Offline (no interface)",
             ["InterfaceOtherTitle"] = "Other interface",
             ["InterfaceUnreadable"] = "Cannot be read",
-            ["InterfaceHintIcom"] = "INPA / Tool32 look for the ICOM on startup. If it is not connected, you get a “NET-0009: TIMEOUT” error. Switch to Offline in that case.",
+            ["InterfaceHintIcom"] = "For E-series cars with an ICOM (INPA, Tool32, NCS Expert). Reserve the ICOM in ITool Radar first and enter its IP address below. Without a connected ICOM, INPA / Tool32 show a “NET-0009: TIMEOUT” error on startup. Switch to Offline in that case.",
             ["InterfaceHintOffline"] = "INPA / Tool32 start without an error message, but cannot communicate with the car. Switch to ICOM for diagnostics.",
-            ["InterfaceHintOther"] = "EDIABAS.INI is set to neither ICOM nor NUL.",
-            ["ButtonIcom"] = "ICOM",
+            ["InterfaceHintOther"] = "EDIABAS.INI contains an interface this app does not manage. Choosing one of the options above replaces it.",
+            ["InterfaceEnetTitle"] = "ENET (Ethernet cable)",
+            ["InterfaceKDcanTitle"] = "K+DCAN (USB cable)",
+            ["InterfaceHintEnet"] = "Ethernet (ENET) connection for F/G-series cars (e.g. INPA64 / Tool64). With an ICOM Next choose “ICOM Next” (ports 50161 / 50160) and reserve the ICOM in ITool Radar first. Leave the address on Autodetect, or enter the ICOM's IP.",
+            ["InterfaceHintKDcan"] = "K+DCAN USB cable for E-series cars (STD:OBD, 32-bit EDIABAS: LoadWin64 = 0). Enter the cable's COM port below (obd.ini), and set the port's latency to 1 ms in Device Manager.",
+            ["HostLabelIcom"] = "ICOM IP address",
+            ["HostLabelEnet"] = "Vehicle / ICOM IP",
+            ["HostLabelKDcan"] = "COM port",
+            ["EnetVariantLabel"] = "Connection",
+            ["EnetCable"] = "ENET cable",
+            ["EnetCustomPorts"] = "custom ports",
+            ["LoadWin64Mismatch"] = "LoadWin64 = {0}, but {1} needs {2}. Click {1} again to fix it.",
+            ["LoadWin64Missing"] = "EDIABAS.INI has no LoadWin64 line, so EDIABAS uses 0. {0} needs LoadWin64 = {1}: add it to the [Configuration] section by hand.",
+            ["Save"] = "Save",
+            ["Saved"] = "✓  Saved",
+            ["HostNotSetIcom"] = "The ICOM IP address is not set yet. Enter it and click Save.",
+            ["HostMissingIcom"] = "No RemoteHost line was found in the [ICOM_P] section of Rplus.ini.",
+            ["HostMissingEnet"] = "No RemoteHost line was found in the [XEthernet] section of EDIABAS.INI.",
+            ["HostMissingKDcan"] = "No Port line was found in the [OBD] section of obd.ini.",
             ["ButtonOffline"] = "Offline",
 
             // Buttons
@@ -66,7 +83,10 @@ namespace ESeriesSwitch.Localization
             ["ConfirmRestart"] = "Restart the computer now? Save your open work first!",
             ["ErrRestart"] = "Could not start the restart:\n\n{0}",
             ["ErrIniWrite"] = "Could not modify EDIABAS.INI:\n\n{0}",
-            ["ErrInterfaceLineMissing"] = "No 'Interface' line was found in the [Configuration] section of EDIABAS.INI.",
+            ["ErrIniKeyMissing"] = "No '{0}' line was found in the [{1}] section of {2}.",
+            ["ErrInvalidIcomIp"] = "Invalid IP address: “{0}”\n\nExample: 169.254.92.38",
+            ["ErrInvalidEnetHost"] = "Invalid address: “{0}”\n\nEnter an IP address (e.g. 169.254.1.1) or Autodetect.",
+            ["ErrInvalidComPort"] = "Invalid COM port: “{0}”\n\nExample: COM3",
             ["MadeBy"] = "Made by",
             ["AboutText"] =
                 "E-Series ⇄ ISTA+ Switch  v{0}\n" +
@@ -105,10 +125,27 @@ namespace ESeriesSwitch.Localization
             ["InterfaceOfflineTitle"] = "Offline (nincs interfész)",
             ["InterfaceOtherTitle"] = "Egyéb interfész",
             ["InterfaceUnreadable"] = "Nem olvasható",
-            ["InterfaceHintIcom"] = "Az INPA / Tool32 indításkor az ICOM-ot keresi. Ha nincs csatlakoztatva, „NET-0009: TIMEOUT” hibát kapsz. Ilyenkor válts Offline-ra.",
+            ["InterfaceHintIcom"] = "E-szériás autókhoz ICOM-mal (INPA, Tool32, NCS Expert). Előbb foglald le az ICOM-ot az ITool Radarban, és lent add meg az IP-címét. Csatlakoztatott ICOM nélkül az INPA / Tool32 indításkor „NET-0009: TIMEOUT” hibát ad. Ilyenkor válts Offline-ra.",
             ["InterfaceHintOffline"] = "Az INPA / Tool32 hibaüzenet nélkül indul, de az autóval nem tud kommunikálni. Diagnosztikához válts ICOM-ra.",
-            ["InterfaceHintOther"] = "Az EDIABAS.INI-ben nem ICOM és nem NUL van beállítva.",
-            ["ButtonIcom"] = "ICOM",
+            ["InterfaceHintOther"] = "Az EDIABAS.INI-ben olyan interfész van, amit az app nem kezel. A fenti gombok bármelyike lecseréli.",
+            ["InterfaceEnetTitle"] = "ENET (Ethernet kábel)",
+            ["InterfaceKDcanTitle"] = "K+DCAN (USB kábel)",
+            ["InterfaceHintEnet"] = "Ethernet (ENET) kapcsolat F/G szériás autókhoz (pl. INPA64 / Tool64). ICOM Next-hez válaszd az „ICOM Next” lehetőséget (50161 / 50160-as portok), és előtte foglald le az ICOM-ot az ITool Radarban. A címet hagyd Autodetect-en, vagy add meg az ICOM IP-címét.",
+            ["InterfaceHintKDcan"] = "K+DCAN USB kábel E-szériás autókhoz (STD:OBD, 32 bites EDIABAS: LoadWin64 = 0). Lent add meg a kábel COM portját (obd.ini), az Eszközkezelőben pedig állítsd a port késleltetését (latency) 1 ms-ra.",
+            ["HostLabelIcom"] = "ICOM IP-cím",
+            ["HostLabelEnet"] = "Autó / ICOM IP",
+            ["HostLabelKDcan"] = "COM port",
+            ["EnetVariantLabel"] = "Kapcsolat",
+            ["EnetCable"] = "ENET kábel",
+            ["EnetCustomPorts"] = "egyedi portok",
+            ["LoadWin64Mismatch"] = "LoadWin64 = {0}, de a(z) {1} interfészhez {2} kell. Kattints újra a(z) {1} gombra a javításhoz.",
+            ["LoadWin64Missing"] = "Az EDIABAS.INI-ben nincs LoadWin64 sor, így az EDIABAS 0-t használ. A(z) {0} interfészhez LoadWin64 = {1} kell: add hozzá kézzel a [Configuration] részhez.",
+            ["Save"] = "Mentés",
+            ["Saved"] = "✓  Mentve",
+            ["HostNotSetIcom"] = "Az ICOM IP-címe még nincs beállítva. Írd be, és kattints a Mentés gombra.",
+            ["HostMissingIcom"] = "Az Rplus.ini [ICOM_P] részében nem található RemoteHost sor.",
+            ["HostMissingEnet"] = "Az EDIABAS.INI [XEthernet] részében nem található RemoteHost sor.",
+            ["HostMissingKDcan"] = "Az obd.ini [OBD] részében nem található Port sor.",
             ["ButtonOffline"] = "Offline",
 
             // Buttons
@@ -144,7 +181,10 @@ namespace ESeriesSwitch.Localization
             ["ConfirmRestart"] = "Biztosan újraindítod a gépet? Előtte mentsd el a nyitott munkáidat!",
             ["ErrRestart"] = "Nem sikerült elindítani az újraindítást:\n\n{0}",
             ["ErrIniWrite"] = "Az EDIABAS.INI módosítása nem sikerült:\n\n{0}",
-            ["ErrInterfaceLineMissing"] = "Az EDIABAS.INI [Configuration] részében nem található 'Interface' sor.",
+            ["ErrIniKeyMissing"] = "A(z) {2} [{1}] részében nem található '{0}' sor.",
+            ["ErrInvalidIcomIp"] = "Érvénytelen IP-cím: „{0}”\n\nPélda: 169.254.92.38",
+            ["ErrInvalidEnetHost"] = "Érvénytelen cím: „{0}”\n\nAdj meg egy IP-címet (pl. 169.254.1.1), vagy azt, hogy Autodetect.",
+            ["ErrInvalidComPort"] = "Érvénytelen COM port: „{0}”\n\nPélda: COM3",
             ["MadeBy"] = "Készítette:",
             ["AboutText"] =
                 "E-Series ⇄ ISTA+ Switch  v{0}\n" +

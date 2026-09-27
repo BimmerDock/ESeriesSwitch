@@ -113,18 +113,62 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="InterfaceTitle" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="InterfaceValue" Grid.Column="1" FontFamily="Consolas" FontSize="12"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                </Grid>
+
+                <!-- Interface choice: the active one is highlighted -->
+                <UniformGrid Rows="1" Margin="0,10,0,0">
+                    <Button x:Name="IcomButton" Margin="0,0,4,0" HorizontalAlignment="Stretch" Click="Interface_Click"
+                            Tag="Icom" Content="ICOM"/>
+                    <Button x:Name="EnetButton" Margin="4,0,4,0" HorizontalAlignment="Stretch" Click="Interface_Click"
+                            Tag="Enet" Content="ENET"/>
+                    <Button x:Name="KDcanButton" Margin="4,0,4,0" HorizontalAlignment="Stretch" Click="Interface_Click"
+                            Tag="KDcan" Content="K+DCAN"/>
+                    <Button x:Name="OfflineButton" Margin="4,0,0,0" HorizontalAlignment="Stretch" Click="Interface_Click"
+                            Tag="Offline" Content="{Binding [ButtonOffline], Source={x:Static loc:Loc.Instance}}"/>
+                </UniformGrid>
+
+                <TextBlock x:Name="LoadWin64Warning" Margin="0,8,0,0" FontSize="12" TextWrapping="Wrap"
+                           Foreground="{StaticResource ESeriesBrush}" Visibility="Collapsed"/>
+
+                <!-- ENET: cable (ports 6811/6801) or ICOM Next (ports 50161/50160) -->
+                <Grid x:Name="EnetVariantRow" Margin="0,12,0,0" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Center" Margin="0,0,12,0"
+                               Text="{Binding [EnetVariantLabel], Source={x:Static loc:Loc.Instance}}"/>
+                    <UniformGrid Grid.Column="1" Rows="1">
+                        <Button x:Name="EnetCableButton" Margin="0,0,4,0" HorizontalAlignment="Stretch"
+                                Tag="Cable" Click="EnetVariant_Click"
+                                Content="{Binding [EnetCable], Source={x:Static loc:Loc.Instance}}"/>
+                        <Button x:Name="EnetIcomButton" Margin="4,0,0,0" HorizontalAlignment="Stretch"
+                                Tag="Icom" Click="EnetVariant_Click" Content="ICOM Next"/>
+                    </UniformGrid>
+                </Grid>
+                <TextBlock x:Name="EnetPortsText" Margin="0,4,0,0" FontFamily="Consolas" FontSize="12"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" Visibility="Collapsed"/>
+
+                <!-- Address (ICOM IP / ENET RemoteHost / K+DCAN COM port), read from the INI every time -->
+                <Grid x:Name="HostRow" Margin="0,12,0,0" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
-                        <TextBlock x:Name="InterfaceTitle" FontSize="16" FontWeight="SemiBold"/>
-                        <TextBlock x:Name="InterfaceValue" FontFamily="Consolas" FontSize="12" Margin="0,2,0,0"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                    </StackPanel>
-                    <Button x:Name="IcomButton" Grid.Column="1" MinWidth="90" Click="Icom_Click"
-                            Content="{Binding [ButtonIcom], Source={x:Static loc:Loc.Instance}}"/>
-                    <Button x:Name="OfflineButton" Grid.Column="2" MinWidth="90" Margin="8,0,0,0" Click="Offline_Click"
-                            Content="{Binding [ButtonOffline], Source={x:Static loc:Loc.Instance}}"/>
+                    <TextBlock x:Name="HostLabel" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBox x:Name="HostBox" Grid.Column="1" FontFamily="Consolas" VerticalContentAlignment="Center"
+                             TextChanged="HostBox_TextChanged" KeyDown="HostBox_KeyDown"/>
+                    <Button x:Name="SaveHostButton" Grid.Column="2" Margin="8,0,0,0" MinWidth="80"
+                            Style="{DynamicResource AccentButtonStyle}" Click="SaveHost_Click"
+                            Content="{Binding [Save], Source={x:Static loc:Loc.Instance}}"/>
                 </Grid>
+                <TextBlock x:Name="HostStatus" Margin="0,6,0,0" FontSize="12" Visibility="Collapsed"/>
                 <TextBlock x:Name="InterfaceHint" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="12"
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
             </StackPanel>

@@ -94,6 +94,9 @@ namespace ESeriesSwitch
             RefreshInterface();
         }
 
+        InterfaceKind _interfaceKind = InterfaceKind.Other;
+        string _loadedHost = "";
+
         void RefreshInterface()
         {
             string? value;
@@ -107,7 +110,8 @@ namespace ESeriesSwitch
                 InterfaceTitle.Text = Loc.T("InterfaceUnreadable");
                 InterfaceValue.Text = EdiabasConfig.IniPath;
                 InterfaceHint.Text = ex.Message;
-                IcomButton.IsEnabled = OfflineButton.IsEnabled = false;
+                SetInterfaceButtonsEnabled(false);
+                HostRow.Visibility = HostStatus.Visibility = Visibility.Collapsed;
                 return;
             }
 
@@ -118,44 +122,252 @@ namespace ESeriesSwitch
             }
 
             InterfaceCard.Visibility = Visibility.Visible;
+            SetInterfaceButtonsEnabled(true);
             InterfaceValue.Text = "Interface = " + value;
+            _interfaceKind = EdiabasConfig.Classify(value);
 
-            bool isIcom = value.Equals(EdiabasConfig.IcomInterface, StringComparison.OrdinalIgnoreCase);
-            bool isOffline = value.Equals(EdiabasConfig.OfflineInterface, StringComparison.OrdinalIgnoreCase);
+            (InterfaceTitle.Text, InterfaceHint.Text) = _interfaceKind switch
+            {
+                InterfaceKind.Icom => (Loc.T("InterfaceIcomTitle"), Loc.T("InterfaceHintIcom")),
+                InterfaceKind.Enet => (Loc.T("InterfaceEnetTitle"), Loc.T("InterfaceHintEnet")),
+                InterfaceKind.KDcan => (Loc.T("InterfaceKDcanTitle"), Loc.T("InterfaceHintKDcan")),
+                InterfaceKind.Offline => (Loc.T("InterfaceOfflineTitle"), Loc.T("InterfaceHintOffline")),
+                _ => (Loc.T("InterfaceOtherTitle"), Loc.T("InterfaceHintOther")),
+            };
 
-            if (isIcom)
-            {
-                InterfaceTitle.Text = Loc.T("InterfaceIcomTitle");
-                InterfaceHint.Text = Loc.T("InterfaceHintIcom");
-            }
-            else if (isOffline)
-            {
-                InterfaceTitle.Text = Loc.T("InterfaceOfflineTitle");
-                InterfaceHint.Text = Loc.T("InterfaceHintOffline");
-            }
-            else
-            {
-                InterfaceTitle.Text = Loc.T("InterfaceOtherTitle");
-                InterfaceHint.Text = Loc.T("InterfaceHintOther");
-            }
+            SetToggle(IcomButton, _interfaceKind == InterfaceKind.Icom);
+            SetToggle(EnetButton, _interfaceKind == InterfaceKind.Enet);
+            SetToggle(KDcanButton, _interfaceKind == InterfaceKind.KDcan);
+            SetToggle(OfflineButton, _interfaceKind == InterfaceKind.Offline);
 
-            // The button of the active setting is disabled, the other one is highlighted
-            SetSegment(IcomButton, isIcom);
-            SetSegment(OfflineButton, isOffline);
+            RefreshLoadWin64();
+            RefreshEnetVariant();
+            RefreshHost();
         }
 
-        void SetSegment(Button button, bool active)
+        bool _loadWin64Mismatch;
+
+        // ICOM / ENET need the 64-bit EDIABAS (LoadWin64 = 1), K+DCAN the 32-bit one (0)
+        void RefreshLoadWin64()
         {
-            button.IsEnabled = !active;
-            button.Style = active ? null : (Style)FindResource("AccentButtonStyle");
+            _loadWin64Mismatch = false;
+            LoadWin64Warning.Visibility = Visibility.Collapsed;
+
+            var current = EdiabasConfig.ReadLoadWin64();
+            var required = EdiabasConfig.RequiredLoadWin64(_interfaceKind);
+            InterfaceValue.Text += $"   LoadWin64 = {current ?? "–"}";
+            if (required == null)
+                return;
+
+            var name = InterfaceName(_interfaceKind);
+            if (current == null)
+            {
+                // Missing line = EDIABAS default 0; only a problem if 1 is needed
+                if (required != "0")
+                    ShowLoadWin64Warning(Loc.T("LoadWin64Missing", name, required));
+            }
+            else if (current != required)
+            {
+                _loadWin64Mismatch = true;
+                ShowLoadWin64Warning(Loc.T("LoadWin64Mismatch", current, name, required));
+            }
+        }
+
+        void ShowLoadWin64Warning(string text)
+        {
+            LoadWin64Warning.Text = "⚠  " + text;
+            LoadWin64Warning.Visibility = Visibility.Visible;
+        }
+
+        static string InterfaceName(InterfaceKind kind) => kind switch
+        {
+            InterfaceKind.Icom => "ICOM",
+            InterfaceKind.Enet => "ENET",
+            InterfaceKind.KDcan => "K+DCAN",
+            _ => kind.ToString()
+        };
+
+        void RefreshEnetVariant()
+        {
+            bool isEnet = _interfaceKind == InterfaceKind.Enet;
+            EnetVariantRow.Visibility = isEnet ? Visibility.Visible : Visibility.Collapsed;
+            EnetPortsText.Visibility = EnetVariantRow.Visibility;
+            if (!isEnet)
+                return;
+
+            var variant = EdiabasConfig.ReadEnetVariant(out var control, out var diagnostic);
+            SetToggle(EnetCableButton, variant == EnetVariant.Cable);
+            SetToggle(EnetIcomButton, variant == EnetVariant.Icom);
+            EnetPortsText.Text = $"ControlPort = {control ?? "–"}   DiagnosticPort = {diagnostic ?? "–"}"
+                + (variant == EnetVariant.Custom ? "   (" + Loc.T("EnetCustomPorts") + ")" : "");
+        }
+
+        void EnetVariant_Click(object sender, RoutedEventArgs e)
+        {
+            var variant = Enum.Parse<EnetVariant>((string)((Button)sender).Tag);
+            if (EdiabasConfig.ReadEnetVariant(out _, out _) == variant)
+                return;
+
+            try
+            {
+                EdiabasConfig.SetEnetVariant(variant);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, Loc.T("ErrIniWrite", ex.Message), Title, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            RefreshInterface();
+        }
+
+        // The address-like setting of the selected interface, always read fresh from its INI file:
+        // ICOM IP (Rplus.ini), ENET RemoteHost (EDIABAS.INI) or K+DCAN COM port (obd.ini)
+        void RefreshHost()
+        {
+            HostStatus.Visibility = Visibility.Collapsed;
+            if (_interfaceKind is not (InterfaceKind.Icom or InterfaceKind.Enet or InterfaceKind.KDcan))
+            {
+                HostRow.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            HostRow.Visibility = Visibility.Visible;
+            var (labelKey, missingKey) = _interfaceKind switch
+            {
+                InterfaceKind.Icom => ("HostLabelIcom", "HostMissingIcom"),
+                InterfaceKind.Enet => ("HostLabelEnet", "HostMissingEnet"),
+                _ => ("HostLabelKDcan", "HostMissingKDcan"),
+            };
+            HostLabel.Text = Loc.T(labelKey);
+
+            string? host = null;
+            try
+            {
+                host = _interfaceKind switch
+                {
+                    InterfaceKind.Icom => EdiabasConfig.ReadIcomHost(),
+                    InterfaceKind.Enet => EdiabasConfig.ReadEnetHost(),
+                    _ => EdiabasConfig.ReadKDcanPort(),
+                };
+            }
+            catch (Exception ex)
+            {
+                ShowHostStatus(ex.Message, "MixedBrush");
+            }
+
+            _loadedHost = host ?? "";
+            HostBox.IsEnabled = host != null;
+            HostBox.Text = _loadedHost;
+
+            if (host == null && HostStatus.Visibility != Visibility.Visible)
+                ShowHostStatus(Loc.T(missingKey), "MixedBrush");
+            else if (_interfaceKind == InterfaceKind.Icom && host != null && (host == "0.0.0.0" || !EdiabasConfig.IsIPv4(host)))
+                ShowHostStatus(Loc.T("HostNotSetIcom"), "ESeriesBrush");
+
+            UpdateSaveButton();
+        }
+        void ShowHostStatus(string text, string brushKey)
+        {
+            HostStatus.Text = text;
+            HostStatus.Foreground = (Brush)FindResource(brushKey);
+            HostStatus.Visibility = Visibility.Visible;
+        }
+
+        void UpdateSaveButton() =>
+            SaveHostButton.IsEnabled = HostBox.IsEnabled && HostBox.Text.Trim() != _loadedHost;
+
+        void HostBox_TextChanged(object sender, TextChangedEventArgs e) => UpdateSaveButton();
+
+        void HostBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && SaveHostButton.IsEnabled)
+                SaveHost();
+        }
+
+        void SaveHost_Click(object sender, RoutedEventArgs e) => SaveHost();
+
+        void SaveHost()
+        {
+            var text = HostBox.Text.Trim();
+
+            string? value = _interfaceKind switch
+            {
+                InterfaceKind.Icom => EdiabasConfig.IsIPv4(text) ? text : null,
+                InterfaceKind.Enet => text.Equals(EdiabasConfig.Autodetect, StringComparison.OrdinalIgnoreCase)
+                    ? EdiabasConfig.Autodetect
+                    : EdiabasConfig.IsIPv4(text) ? text : null,
+                InterfaceKind.KDcan => EdiabasConfig.NormalizeComPort(text),
+                _ => null
+            };
+
+            if (value == null)
+            {
+                var errorKey = _interfaceKind switch
+                {
+                    InterfaceKind.Icom => "ErrInvalidIcomIp",
+                    InterfaceKind.Enet => "ErrInvalidEnetHost",
+                    _ => "ErrInvalidComPort",
+                };
+                MessageBox.Show(this, Loc.T(errorKey, text), Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                switch (_interfaceKind)
+                {
+                    case InterfaceKind.Icom: EdiabasConfig.SetIcomHost(value); break;
+                    case InterfaceKind.Enet: EdiabasConfig.SetEnetHost(value); break;
+                    case InterfaceKind.KDcan: EdiabasConfig.SetKDcanPort(value); break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, Loc.T("ErrIniWrite", ex.Message), Title, MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            RefreshInterface();
+            ShowHostStatus(Loc.T("Saved"), "IstaBrush");
+        }
+        void Interface_Click(object sender, RoutedEventArgs e)
+        {
+            var kind = Enum.Parse<InterfaceKind>((string)((Button)sender).Tag);
+            // Clicking the active interface again only makes sense to fix its LoadWin64 value
+            if (kind == _interfaceKind && !_loadWin64Mismatch)
+                return;
+
+            try
+            {
+                EdiabasConfig.SetInterface(kind);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, Loc.T("ErrIniWrite", ex.Message), Title, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            RefreshInterface();
+        }
+
+        void SetInterfaceButtonsEnabled(bool enabled)
+        {
+            foreach (var button in new[] { IcomButton, EnetButton, KDcanButton, OfflineButton })
+                button.IsEnabled = enabled;
+        }
+
+        // Active option: blue accent button. Inactive: the theme's normal (rounded) button.
+        // ClearValue instead of Style = null, otherwise WPF falls back to the old square system style.
+        void SetToggle(Button button, bool active)
+        {
+            if (active)
+                button.Style = (Style)FindResource("AccentButtonStyle");
+            else
+                button.ClearValue(StyleProperty);
         }
 
         void UpdateLanguageButtons()
         {
-            // Here the active language is the highlighted one
             bool hungarian = Loc.Instance.Language == AppLanguage.Hungarian;
-            EnglishButton.Style = hungarian ? null : (Style)FindResource("AccentButtonStyle");
-            HungarianButton.Style = hungarian ? (Style)FindResource("AccentButtonStyle") : null;
+            SetToggle(EnglishButton, !hungarian);
+            SetToggle(HungarianButton, hungarian);
         }
 
         void English_Click(object sender, RoutedEventArgs e) => ChangeLanguage(AppLanguage.English);
@@ -167,23 +379,6 @@ namespace ESeriesSwitch
             Loc.Instance.SetLanguage(language);
             AppSettings.SaveLanguage(language);
             RefreshStatus();
-        }
-
-        void Icom_Click(object sender, RoutedEventArgs e) => SetInterface(EdiabasConfig.IcomInterface);
-
-        void Offline_Click(object sender, RoutedEventArgs e) => SetInterface(EdiabasConfig.OfflineInterface);
-
-        void SetInterface(string value)
-        {
-            try
-            {
-                EdiabasConfig.SetInterface(value);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, Loc.T("ErrIniWrite", ex.Message), Title, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            RefreshInterface();
         }
 
         async void ToESeries_Click(object sender, RoutedEventArgs e) => await SwitchTo(ToolMode.ESeries);
