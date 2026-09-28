@@ -44,7 +44,8 @@ Az **ESeriesSwitch** ezt egy kattintással, biztonságosan elvégzi, és egy pil
 - **Váltás egy kattintással**, mindkét irányba.
 - **Automatikus mentés** az előző értékekről minden módosítás előtt.
 - **Biztonságos PATH-kezelés**: csak az EDIABAS-bejegyzést adja hozzá vagy veszi ki. A `PATH` többi része és a registry-típusa (`REG_EXPAND_SZ`) érintetlen marad, így a `%SystemRoot%\system32`-höz hasonló bejegyzések továbbra is működnek.
-- **EDIABAS interfész kiválasztása** (ICOM, ENET, K+DCAN vagy Offline), az ICOM IP-címe, az ENET cím és a K+DCAN COM port az appban szerkeszthető. Az Offline megelőzi a `NET-0009: TIMEOUT` hibát, ha nincs ICOM csatlakoztatva ([részletek lent](#ediabas-interfész-icom--enet--kdcan--offline)).
+- **EDIABAS interfész kiválasztása** (ICOM, ENET, K+DCAN vagy Offline), az ICOM IP-címe, az ENET cím és a K+DCAN COM port az appban szerkeszthető.
+- **WinKFP / NFS**: az `NFS.INI` automatikusan ugyanazt az interfészt használja, mint az EDIABAS, így az NFS OPPS nélkül is elindul ([részletek lent](#winkfp--nfs)). Az Offline megelőzi a `NET-0009: TIMEOUT` hibát, ha nincs ICOM csatlakoztatva ([részletek lent](#ediabas-interfész-icom--enet--kdcan--offline)).
 - **Újraindítás felajánlása** váltás után.
 - **Figyelmeztetés**, ha hiányzik az EDIABAS mappa, vagy ha felhasználói szintű változók felülírhatják a rendszerszintűeket.
 - **Angol és magyar** felület, bármikor átváltható.
@@ -137,6 +138,36 @@ Mindhárom fájl az EDIABAS `BIN` mappájában van.
 - Minden módosítás előtt másolatot ment a fájlról a mentések mappájába.
 - A változás az INPA vagy a Tool32 következő indításakor lép életbe, újraindítás nem kell hozzá.
 
+## WinKFP / NFS
+
+Az NFS-nek (`C:\EC-APPS\NFS\BIN\nfs.exe`, a WinKFP flash rendszere) **saját** interfészbeállítása van az `NFS.INI` → `[INSTANZ]` részben. Gyárilag egy BMW-s OPPS interfészre mutat:
+
+```ini
+[INSTANZ]
+Interface= remote:OBD_ab625
+MEHRKANAL= JA
+Interface_1= remote:OBD_ab625
+Interface_2= remote:MOST_CTRL_ab625
+Interface_3= remote:MOST_ASYNC_ab625
+```
+
+OPPS nélkül így az NFS nem indul el. Az NFS súgója szerint egy példányos használatnál az NFS-nek ugyanazt a csatornát kell használnia, mint az EDIABAS-nak, ezért az app a kettőt szinkronban tartja:
+
+- **Interfész választásakor** az `NFS.INI` → `[INSTANZ]` → `Interface` ugyanarra az értékre áll (pl. `STD:OBD`, `RPLUS:ICOM_P`), a WinKFP csatornái (`Interface_1` … `Interface_3`) pedig kiürülnek. A `MEHRKANAL` és a fájl többi része nem változik.
+- Az *EDIABAS interfész* kártya mutatja, hogy az NFS egyezik-e az EDIABAS-szal. Ha nem (például kézi módosítás vagy friss telepítés után), kattints a **Szinkron** gombra.
+- Az `NFS.INI`-t az app az EDIABAS melletti `…\EC-APPS\NFS\BIN` mappában, majd a `C:\NFS\BIN`-ben keresi. Ha nem találja, a kártyán ez a rész nem jelenik meg.
+
+K+DCAN-nél az eredmény pontosan a megszokott kézi javítás:
+
+```ini
+[INSTANZ]
+Interface= STD:OBD
+MEHRKANAL= JA
+Interface_1=
+Interface_2=
+Interface_3=
+```
+
 ## Mit módosít az app, és mihez nem nyúl
 
 **Módosítja:**
@@ -144,6 +175,7 @@ Mindhárom fájl az EDIABAS `BIN` mappájában van.
 - az EDIABAS `BIN` bejegyzést a rendszer `PATH`-ban
 - az `EDIABAS.INI` `Interface` és `LoadWin64` sorát, de **csak** interfészgombra kattintva
 - az ENET portokat az `EDIABAS.INI`-ben (`[XEthernet] ControlPort` / `DiagnosticPort`), de **csak** az *ENET kábel* / *ICOM Next* választásakor
+- az `NFS.INI` `Interface` és `Interface_1` … `Interface_3` sorát (`[INSTANZ]`), de **csak** interfész választásakor vagy a *Szinkron* gombra kattintva
 - az ICOM címét az `Rplus.ini`-ben (`[ICOM_P] RemoteHost`), az ENET címét az `EDIABAS.INI`-ben (`[XEthernet] RemoteHost`) vagy a K+DCAN COM portját az `obd.ini`-ben (`[OBD] Port`), de **csak** a *Mentés* gombra kattintva
 
 **Létrehozza:**
@@ -152,7 +184,7 @@ Mindhárom fájl az EDIABAS `BIN` mappájában van.
 **Soha nem nyúl hozzá:**
 - a felhasználói szintű környezeti változókhoz (ezeket csak olvassa, és figyelmeztet)
 - az ISTA+-hoz, INPA-hoz, WinKFP-hez, NCS Experthez és ezek fájljaihoz
-- az `EDIABAS.INI`, az `Rplus.ini` és az `obd.ini` többi részéhez, valamint a `C:\EC-APPS` többi fájljához
+- az `EDIABAS.INI`, az `Rplus.ini`, az `obd.ini` és az `NFS.INI` többi részéhez, valamint a `C:\EC-APPS` többi fájljához
 - a hálózati beállításokhoz, az ICOM-hoz és a Windows-szolgáltatásokhoz
 
 **Hálózat:** az app egyetlen hálózati kapcsolata a frissítésellenőrzés. Indításkor egyszer lekérdezi az `api.github.com`-ról a legújabb kiadás verziószámát. Rólad és a gépedről semmilyen adatot nem küld, és semmit nem tölt le magától. Ha a gép offline, az ellenőrzés csendben kimarad.
@@ -162,14 +194,14 @@ Mindhárom fájl az EDIABAS `BIN` mappájában van.
 A mentések helye: `C:\ProgramData\ESeriesSwitch\Backups\`. A **Mentések mappája** gombbal nyithatod meg.
 
 - `backup_ÉÉÉÉHHNN_ÓÓPPMM.json`: a környezeti változók állapota **a váltás előtt**: `Path`, `PathKind`, `EdiabasConfigDir`.
-- `EDIABAS_…`, `Rplus_…` és `obd_ÉÉÉÉHHNN_ÓÓPPMM.ini`: a fájl másolata **az interfész vagy egy kapcsolati beállítás módosítása előtt**.
+- `EDIABAS_…`, `Rplus_…`, `obd_…` és `NFS_ÉÉÉÉHHNN_ÓÓPPMM.INI`: a fájl másolata **az interfész vagy egy kapcsolati beállítás módosítása előtt**.
 
 **A környezeti változók kézi visszaállítása:**
 1. Nyisd meg a *Rendszer tulajdonságai* → *Környezeti változók…* ablakot (vagy futtasd rendszergazdaként a `rundll32 sysdm.cpl,EditEnvironmentVariables` parancsot).
 2. A *Rendszerváltozók* között szerkeszd a `Path` értékét: kattints a *Szöveg szerkesztése…* gombra, és illeszd be a mentésfájl `Path` értékét.
 3. Állítsd be vagy töröld az `EDIABAS_CONFIG_DIR` változót a mentésben lévő `EdiabasConfigDir` szerint.
 
-**Az `EDIABAS.INI` / `Rplus.ini` / `obd.ini` kézi visszaállítása:** másold vissza a mentett fájlt az EDIABAS `BIN` mappába, és nevezd át az eredeti nevére.
+**Az `EDIABAS.INI` / `Rplus.ini` / `obd.ini` / `NFS.INI` kézi visszaállítása:** másold vissza a mentett fájlt a helyére (EDIABAS `BIN`, az `NFS.INI`-t pedig az `NFS\BIN` mappába), és nevezd át az eredeti nevére.
 
 ## Hibaelhárítás
 
@@ -220,6 +252,9 @@ A tároló **nem** tartalmaz BMW-szoftvert, adatfájlokat vagy más, jogvédett 
 
 ## Verziók
 
+- **1.4.0**
+  - WinKFP / NFS támogatás: az `NFS.INI` `[INSTANZ]` része automatikusan követi az EDIABAS interfészt, így az NFS OPPS nélkül is elindul
+  - NFS állapot az interfész kártyán, *Szinkron* gombbal, ha nem egyezik
 - **1.3.0**
   - Bővített interfészválasztás: ICOM, ENET, K+DCAN és Offline
   - Az ICOM IP-címe (`Rplus.ini`), az ENET cím (`EDIABAS.INI`) és a K+DCAN COM port (`obd.ini`) az appban szerkeszthető, mindig frissen az INI-fájlokból olvasva

@@ -143,6 +143,48 @@ namespace ESeriesSwitch
             RefreshLoadWin64();
             RefreshEnetVariant();
             RefreshHost();
+            RefreshNfs(value);
+        }
+
+        // WinKFP / NFS: NFS.INI [INSTANZ] should use the same interface as EDIABAS
+        void RefreshNfs(string ediabasInterface)
+        {
+            NfsStatus? nfs;
+            try
+            {
+                nfs = NfsConfig.Read();
+            }
+            catch
+            {
+                nfs = null;
+            }
+
+            NfsPanel.Visibility = nfs != null ? Visibility.Visible : Visibility.Collapsed;
+            if (nfs == null)
+                return;
+
+            bool matches = NfsConfig.MatchesEdiabas(nfs, ediabasInterface);
+            NfsStatusText.Text = matches ? Loc.T("NfsMatches") : Loc.T("NfsDiffers");
+            NfsStatusText.Foreground = (Brush)FindResource(matches ? "IstaBrush" : "ESeriesBrush");
+
+            var channels = string.Join("  ", nfs.ChannelInterfaces.Select((c, i) => $"Interface_{i + 1}={c}"));
+            NfsValueText.Text = $"Interface = {nfs.Interface}   MEHRKANAL = {nfs.MultiChannel ?? "–"}\n{channels}";
+            NfsSyncButton.Visibility = matches ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        void NfsSync_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var ediabasInterface = EdiabasConfig.ReadInterface();
+                if (ediabasInterface != null)
+                    NfsConfig.SyncWith(ediabasInterface);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, Loc.T("ErrIniWrite", ex.Message), Title, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            RefreshInterface();
         }
 
         bool _loadWin64Mismatch;
@@ -339,6 +381,8 @@ namespace ESeriesSwitch
             try
             {
                 EdiabasConfig.SetInterface(kind);
+                // WinKFP / NFS follows the EDIABAS interface (no-op if NFS is not installed)
+                NfsConfig.SyncWith(EdiabasConfig.InterfaceValue(kind));
             }
             catch (Exception ex)
             {

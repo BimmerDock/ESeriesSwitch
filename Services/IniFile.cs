@@ -40,7 +40,8 @@ namespace ESeriesSwitch.Services
 
             // Keep the whitespace around the value (and anything before a ; comment)
             var old = group.Value;
-            var leading = old[..(old.Length - old.TrimStart().Length)];
+            // An emptied value becomes "key=" (no dangling space)
+            var leading = value.Length == 0 ? "" : old[..(old.Length - old.TrimStart().Length)];
             var trailing = old[old.TrimEnd().Length..];
             var updated = text[..group.Index] + leading + value + trailing + text[(group.Index + group.Length)..];
             File.WriteAllBytes(path, FileEncoding.GetBytes(updated));
@@ -50,7 +51,8 @@ namespace ESeriesSwitch.Services
 
         static Group? FindValue(string text, string section, string key)
         {
-            var sectionMatch = new Regex($@"^\[{Regex.Escape(section)}\][ \t]*\r?$",
+            // "[INSTANZ]" and "[ INSTANZ ]" are both valid
+            var sectionMatch = new Regex($@"^\[[ \t]*{Regex.Escape(section)}[ \t]*\][ \t]*\r?$",
                 RegexOptions.Multiline | RegexOptions.IgnoreCase).Match(text);
             if (!sectionMatch.Success)
                 return null;

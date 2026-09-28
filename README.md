@@ -44,7 +44,8 @@ So the legacy tools only work **with** the environment variables, and ISTA+ only
 - **One-click switching** in both directions.
 - **Automatic backup** of the previous values before every change.
 - **Safe PATH handling**: only the EDIABAS entry is added or removed. The rest of `PATH` and its registry type (`REG_EXPAND_SZ`) are left untouched, so entries like `%SystemRoot%\system32` keep working.
-- **EDIABAS interface selection** (ICOM, ENET, K+DCAN or Offline), with the ICOM IP, the ENET address and the K+DCAN COM port editable in the app. Offline avoids the `NET-0009: TIMEOUT` error when no ICOM is connected ([details below](#ediabas-interface-icom--enet--kdcan--offline)).
+- **EDIABAS interface selection** (ICOM, ENET, K+DCAN or Offline), with the ICOM IP, the ENET address and the K+DCAN COM port editable in the app.
+- **WinKFP / NFS**: `NFS.INI` automatically uses the same interface as EDIABAS, so NFS starts without an OPPS ([details below](#winkfp--nfs)). Offline avoids the `NET-0009: TIMEOUT` error when no ICOM is connected ([details below](#ediabas-interface-icom--enet--kdcan--offline)).
 - **Restart offer** after switching.
 - **Warnings** if the EDIABAS folder is missing or if user-level variables could override the system ones.
 - **English and Hungarian** user interface, switchable at any time.
@@ -137,6 +138,36 @@ All three files are in the EDIABAS `BIN` folder.
 - A copy of the file is saved to the backups folder before every change.
 - The change takes effect the next time INPA or Tool32 starts. No restart is needed.
 
+## WinKFP / NFS
+
+NFS (`C:\EC-APPS\NFS\BIN\nfs.exe`, the WinKFP flash system) has its **own** interface setting in `NFS.INI` → `[INSTANZ]`. Out of the box it points to a BMW factory OPPS interface:
+
+```ini
+[INSTANZ]
+Interface= remote:OBD_ab625
+MEHRKANAL= JA
+Interface_1= remote:OBD_ab625
+Interface_2= remote:MOST_CTRL_ab625
+Interface_3= remote:MOST_ASYNC_ab625
+```
+
+Without an OPPS, NFS then fails to start. According to the NFS help, a single-instance NFS should use the same channel as EDIABAS, so the app keeps them in sync:
+
+- **When you choose an interface**, `NFS.INI` → `[INSTANZ]` → `Interface` is set to the same value (e.g. `STD:OBD`, `RPLUS:ICOM_P`), and the WinKFP channel entries `Interface_1` … `Interface_3` are emptied. `MEHRKANAL` and the rest of the file are not changed.
+- The *EDIABAS interface* card shows whether NFS matches EDIABAS. If it does not (e.g. after a manual edit or a fresh install), click **Sync**.
+- `NFS.INI` is looked for in `…\EC-APPS\NFS\BIN` next to EDIABAS, then in `C:\NFS\BIN`. If it is not found, this part of the card is hidden.
+
+For K+DCAN, the result is exactly the usual manual fix:
+
+```ini
+[INSTANZ]
+Interface= STD:OBD
+MEHRKANAL= JA
+Interface_1=
+Interface_2=
+Interface_3=
+```
+
 ## What the app changes and what it does not
 
 **Changes:**
@@ -144,6 +175,7 @@ All three files are in the EDIABAS `BIN` folder.
 - the EDIABAS `BIN` entry in the system `PATH`
 - the `Interface` and `LoadWin64` lines in `EDIABAS.INI`, **only** when you click an interface button
 - the ENET ports in `EDIABAS.INI` (`[XEthernet] ControlPort` / `DiagnosticPort`), **only** when you choose *ENET cable* or *ICOM Next*
+- the `Interface` and `Interface_1` … `Interface_3` lines in `NFS.INI` (`[INSTANZ]`), **only** when you choose an interface or click *Sync*
 - the ICOM address in `Rplus.ini` (`[ICOM_P] RemoteHost`), the ENET address in `EDIABAS.INI` (`[XEthernet] RemoteHost`) or the K+DCAN COM port in `obd.ini` (`[OBD] Port`), **only** when you click *Save*
 
 **Creates:**
@@ -152,7 +184,7 @@ All three files are in the EDIABAS `BIN` folder.
 **Never touches:**
 - user-level environment variables (it only reads them and warns you)
 - ISTA+, INPA, WinKFP, NCS Expert or any of their files
-- the rest of `EDIABAS.INI`, `Rplus.ini`, `obd.ini` and `C:\EC-APPS`
+- the rest of `EDIABAS.INI`, `Rplus.ini`, `obd.ini`, `NFS.INI` and `C:\EC-APPS`
 - network settings, the ICOM or Windows services
 
 **Network:** the only connection the app makes is the update check, a single request to `api.github.com` on startup that reads the latest release number. No data about you or your PC is sent, and nothing is downloaded automatically. If the PC is offline, the check is skipped silently.
@@ -162,14 +194,14 @@ All three files are in the EDIABAS `BIN` folder.
 Backups are stored in `C:\ProgramData\ESeriesSwitch\Backups\`. Open this folder with the **Backups folder** button.
 
 - `backup_YYYYMMDD_HHMMSS.json` contains the environment **before** a switch: `Path`, `PathKind` and `EdiabasConfigDir`.
-- `EDIABAS_…`, `Rplus_…` and `obd_YYYYMMDD_HHMMSS.ini` contain a copy of the file **before** an interface or connection setting change.
+- `EDIABAS_…`, `Rplus_…`, `obd_…` and `NFS_YYYYMMDD_HHMMSS.INI` contain a copy of the file **before** an interface or connection setting change.
 
 **Manual restore of the environment:**
 1. Open *System Properties* → *Environment Variables…* (or run `rundll32 sysdm.cpl,EditEnvironmentVariables` as administrator).
 2. Under *System variables*, edit `Path`, click *Edit text…* and paste the `Path` value from the backup file.
 3. Set or delete `EDIABAS_CONFIG_DIR` to match `EdiabasConfigDir` from the backup.
 
-**Manual restore of `EDIABAS.INI` / `Rplus.ini` / `obd.ini`:** copy the backup file back to the EDIABAS `BIN` folder and rename it to its original name.
+**Manual restore of `EDIABAS.INI` / `Rplus.ini` / `obd.ini` / `NFS.INI`:** copy the backup file back to its folder (EDIABAS `BIN`, or `NFS\BIN` for `NFS.INI`) and rename it to its original name.
 
 ## Troubleshooting
 
@@ -220,6 +252,9 @@ This repository contains **no** BMW software, data files or other proprietary ma
 
 ## Changelog
 
+- **1.4.0**
+  - WinKFP / NFS support: `NFS.INI` `[INSTANZ]` automatically follows the EDIABAS interface, so NFS starts without an OPPS
+  - NFS status on the interface card, with a *Sync* button when it does not match
 - **1.3.0**
   - Interface selection extended: ICOM, ENET, K+DCAN and Offline
   - ICOM IP address (`Rplus.ini`), ENET address (`EDIABAS.INI`) and K+DCAN COM port (`obd.ini`) editable in the app, always read fresh from the INI files
