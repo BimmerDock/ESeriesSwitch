@@ -17,7 +17,7 @@
     <Copyright>Copyright © 2026 BimmerDock. MIT License.</Copyright>
     <PackageProjectUrl>https://bimmerdock.com</PackageProjectUrl>
     <RepositoryUrl>https://github.com/BimmerDock/ESeriesSwitch</RepositoryUrl>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
 
     <!-- The WPF Fluent theme (ThemeMode) is still marked as experimental -->
     <NoWarn>$(NoWarn);WPF0001</NoWarn>

@@ -11,6 +11,8 @@
         Width="600" SizeToContent="Height"
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen">
+    <!-- Scrolls when the window is capped to the screen height (small laptop screens) -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="28,24,28,24">
 
         <!-- Header -->
@@ -260,4 +262,5 @@
             <Hyperlink NavigateUri="https://github.com/BimmerDock/ESeriesSwitch" RequestNavigate="Link_RequestNavigate">GitHub</Hyperlink>
         </TextBlock>
     </StackPanel>
+    </ScrollViewer>
 </Window>

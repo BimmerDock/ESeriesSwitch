@@ -252,6 +252,7 @@ This repository contains **no** BMW software, data files or other proprietary ma
 
 ## Changelog
 
+- **1.4.1**: fix: on small / scaled laptop screens the window no longer extends beyond the screen. It is capped to the screen height, keeps its title bar visible, and the content scrolls
 - **1.4.0**
   - WinKFP / NFS support: `NFS.INI` `[INSTANZ]` automatically follows the EDIABAS interface, so NFS starts without an OPPS
   - NFS status on the interface card, with a *Sync* button when it does not match

@@ -252,6 +252,7 @@ A tároló **nem** tartalmaz BMW-szoftvert, adatfájlokat vagy más, jogvédett 
 
 ## Verziók
 
+- **1.4.1**: javítás: kis vagy nagyított laptopképernyőn az ablak nem lóg ki többé. Legfeljebb képernyőnyi magas, a címsora mindig látszik, a tartalma pedig görgethető
 - **1.4.0**
   - WinKFP / NFS támogatás: az `NFS.INI` `[INSTANZ]` része automatikusan követi az EDIABAS interfészt, így az NFS OPPS nélkül is elindul
   - NFS állapot az interfész kártyán, *Szinkron* gombbal, ha nem egyezik

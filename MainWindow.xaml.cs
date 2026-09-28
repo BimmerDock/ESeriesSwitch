@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using ESeriesSwitch.Localization;
 using ESeriesSwitch.Services;
@@ -18,13 +20,75 @@ namespace ESeriesSwitch
             Loc.Instance.SetLanguage(AppSettings.LoadLanguage());
             InitializeComponent();
             VersionText.Text = "v" + AppInfo.VersionText;
+            SizeChanged += (_, _) => FitToScreen();
             Loaded += async (_, _) =>
             {
+                FitToScreen();
                 RefreshStatus();
                 _update = await UpdateChecker.CheckAsync();
                 ShowUpdate();
             };
         }
+
+        // Small laptop screens: the window is sized to its content, which can be taller than the screen.
+        // Cap it to the monitor's work area (the content then scrolls) and keep the title bar on screen.
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            FitToScreen();
+        }
+
+        void FitToScreen()
+        {
+            var area = GetWorkArea();
+            if (MaxHeight != area.Height)
+                MaxHeight = area.Height;
+
+            if (ActualHeight > 0)
+            {
+                if (Top + ActualHeight > area.Bottom)
+                    Top = area.Bottom - ActualHeight;
+                if (Top < area.Top)
+                    Top = area.Top;
+            }
+        }
+
+        /// <summary>Work area (screen minus taskbar) of the monitor the window is on, in WPF units.</summary>
+        Rect GetWorkArea()
+        {
+            var area = SystemParameters.WorkArea;
+            var hwnd = new WindowInteropHelper(this).Handle;
+            var info = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
+            var source = PresentationSource.FromVisual(this);
+            if (hwnd != IntPtr.Zero && source?.CompositionTarget != null
+                && GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), ref info))
+            {
+                var toWpf = source.CompositionTarget.TransformFromDevice;
+                area = new Rect(
+                    toWpf.Transform(new Point(info.rcWork.Left, info.rcWork.Top)),
+                    toWpf.Transform(new Point(info.rcWork.Right, info.rcWork.Bottom)));
+            }
+#if DEBUG
+            // Test hook: simulate a small screen, e.g. set ESS_TEST_SCREEN_HEIGHT=700
+            if (double.TryParse(Environment.GetEnvironmentVariable("ESS_TEST_SCREEN_HEIGHT"), out var testHeight))
+                area = new Rect(area.X, area.Y, area.Width, Math.Min(area.Height, testHeight));
+#endif
+            return area;
+        }
+
+        const uint MONITOR_DEFAULTTONEAREST = 2;
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct RECT { public int Left, Top, Right, Bottom; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct MONITORINFO { public int cbSize; public RECT rcMonitor, rcWork; public uint dwFlags; }
+
+        [DllImport("user32.dll")]
+        static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+
+        [DllImport("user32.dll")]
+        static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
         void ShowUpdate()
         {
