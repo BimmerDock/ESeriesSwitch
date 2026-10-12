@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshot-hu.png" width="480" alt="ESeriesSwitch főablak">
+  <img src="docs/banner.png" alt="E-Series ⇄ ISTA+ Switch: egy kattintással a régi BMW E-szériás kódoló toolok és a gyári ISTA+ között">
 </p>
 
 ---
@@ -39,6 +39,10 @@ Az **ESeriesSwitch** ezt egy kattintással, biztonságosan elvégzi, és egy pil
 > A régi toolok pontos típuslefedettsége az adatfájlok (SP-Daten) verziójától függ. F, G, I és U szériás autókhoz általában E-Sys vagy ISTA+ kell, így erre a programra csak akkor van szükséged, ha a régi toolokat is használod.
 
 ## Funkciók
+
+<p align="center">
+  <img src="docs/screenshot-hu.png" width="480" alt="ESeriesSwitch főablak magyarul">
+</p>
 
 - **Egyértelmű állapotjelzés**: 🟠 *E-szériás mód*, 🟢 *Gyári ISTA+ mód* vagy 🔴 *Részleges állapot* (a két beállításból csak az egyik van meg).
 - **Váltás egy kattintással**, mindkét irányba.

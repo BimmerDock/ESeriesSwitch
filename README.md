@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshot-en.png" width="480" alt="ESeriesSwitch main window">
+  <img src="docs/banner.png" alt="E-Series ⇄ ISTA+ Switch: one click between the legacy BMW E-series coding tools and the official ISTA+">
 </p>
 
 ---
@@ -39,6 +39,10 @@ So the legacy tools only work **with** the environment variables, and ISTA+ only
 > The exact vehicle coverage of the legacy tools depends on the version of your data files (SP-Daten). For F, G, I and U series cars you normally use E-Sys or ISTA+, so this tool is only relevant if you also use the legacy tools.
 
 ## Features
+
+<p align="center">
+  <img src="docs/features.png" alt="ESeriesSwitch features: one-click mode switch, interface setup, WinKFP / NFS in sync, safe by design">
+</p>
 
 - **Clear status**: 🟠 *E-series mode*, 🟢 *Factory ISTA+ mode* or 🔴 *Partial state* (only one of the two settings is present).
 - **One-click switching** in both directions.
