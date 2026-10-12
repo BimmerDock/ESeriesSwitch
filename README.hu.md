@@ -47,6 +47,7 @@ Az **ESeriesSwitch** ezt egy kattintással, biztonságosan elvégzi, és egy pil
 - **EDIABAS interfész kiválasztása** (ICOM, ENET, K+DCAN vagy Offline), az ICOM IP-címe, az ENET cím és a K+DCAN COM port az appban szerkeszthető.
 - **WinKFP / NFS**: az `NFS.INI` automatikusan ugyanazt az interfészt használja, mint az EDIABAS, így az NFS OPPS nélkül is elindul ([részletek lent](#winkfp--nfs)). Az Offline megelőzi a `NET-0009: TIMEOUT` hibát, ha nincs ICOM csatlakoztatva ([részletek lent](#ediabas-interfész-icom--enet--kdcan--offline)).
 - **Újraindítás felajánlása** váltás után.
+- **Asztali parancsikonok** (opcionális): ISTA+ módban az E-szériás parancsikonok eltűnnek az asztalról, így ránézésre látod, melyik mód aktív ([részletek lent](#asztali-parancsikonok-opcionális)).
 - **Figyelmeztetés**, ha hiányzik az EDIABAS mappa, vagy ha felhasználói szintű változók felülírhatják a rendszerszintűeket.
 - **Angol és magyar** felület, bármikor átváltható.
 - **Értesítés új verzióról**: indításkor az app megnézi a GitHubon, van-e újabb kiadás, és ha van, *Letöltés* gombot mutat.
@@ -168,6 +169,17 @@ Interface_2=
 Interface_3=
 ```
 
+## Asztali parancsikonok (opcionális)
+
+Hogy egy pillantással lásd, melyik mód aktív, az app el tudja rejteni az E-szériás parancsikonokat az asztalról, amíg az ISTA+ aktív. A funkció **alapból ki van kapcsolva**, az *Asztali parancsikonok* kártyán kapcsolhatod be:
+
+- A kártya felsorolja a **saját** és a **nyilvános asztalon** lévő összes parancsikont (`.lnk`, `.url`), mindegyiket jelölőnégyzettel. Ha beállítottad, a listát becsukhatod, és az app ezt megjegyzi.
+- Az első bekapcsoláskor az app előre bejelöli az E-szériás toolok parancsikonjait: ami az `EC-APPS` alá van telepítve, vagy az `INPA`, `NCSEXPER`, `NFS`, `EDIABAS` mappába mutat, vagy a nevében INPA, Tool32, NCS, WinKFP, NFS vagy EDIABAS szerepel. **Az ITool Radart és az ISTA-t soha nem jelöli be**, mert ISTA+ módban is kellenek. A kijelölést tetszés szerint módosíthatod. A **Javasoltak kijelölése** gomb bármikor hozzáadja a javasoltakat a kijelöléshez.
+- **ISTA+ módban** a kijelölt parancsikonok eltűnnek az asztalról, **E-szériás módban** **ugyanoda kerülnek vissza az asztalon**, ahol voltak. Az app elrejtéskor megjegyzi minden ikon helyét (a Windows magától az első szabad helyre tenné vissza őket). Ha egy parancsikonról leveszed a jelölést, vagy kikapcsolod a funkciót, azonnal visszakerül.
+- **Semmi nem törlődik.** Az elrejtett parancsikonok átkerülnek ide: `C:\ProgramData\ESeriesSwitch\HiddenShortcuts`, és pontosan oda kerülnek vissza, ahonnan elvittük (minden áthelyezést a mappában lévő `manifest.json` rögzít).
+- Ha közben újra van ugyanilyen nevű parancsikon az asztalon, az app soha nem írja felül: megtartja az elrejtett példányt, és szól.
+- *Részleges* állapotban nem változik semmi.
+
 ## Mit módosít az app, és mihez nem nyúl
 
 **Módosítja:**
@@ -176,10 +188,11 @@ Interface_3=
 - az `EDIABAS.INI` `Interface` és `LoadWin64` sorát, de **csak** interfészgombra kattintva
 - az ENET portokat az `EDIABAS.INI`-ben (`[XEthernet] ControlPort` / `DiagnosticPort`), de **csak** az *ENET kábel* / *ICOM Next* választásakor
 - az `NFS.INI` `Interface` és `Interface_1` … `Interface_3` sorát (`[INSTANZ]`), de **csak** interfész választásakor vagy a *Szinkron* gombra kattintva
+- a kijelölt asztali parancsikonok helyét, de **csak** ha bekapcsoltad az *Asztali parancsikonok* funkciót (áthelyezés a `C:\ProgramData\ESeriesSwitch\HiddenShortcuts` mappába és vissza)
 - az ICOM címét az `Rplus.ini`-ben (`[ICOM_P] RemoteHost`), az ENET címét az `EDIABAS.INI`-ben (`[XEthernet] RemoteHost`) vagy a K+DCAN COM portját az `obd.ini`-ben (`[OBD] Port`), de **csak** a *Mentés* gombra kattintva
 
 **Létrehozza:**
-- a mentésfájlokat és a `settings.json`-t (a választott nyelvvel) itt: `C:\ProgramData\ESeriesSwitch\`
+- a mentésfájlokat, a `settings.json`-t (nyelv és a parancsikonok kijelölése) és a `HiddenShortcuts` mappát itt: `C:\ProgramData\ESeriesSwitch\`
 
 **Soha nem nyúl hozzá:**
 - a felhasználói szintű környezeti változókhoz (ezeket csak olvassa, és figyelmeztet)
@@ -252,6 +265,7 @@ A tároló **nem** tartalmaz BMW-szoftvert, adatfájlokat vagy más, jogvédett 
 
 ## Verziók
 
+- **1.5.0**: opcionális *Asztali parancsikonok* funkció: ISTA+ módban elrejti a kijelölt E-szériás parancsikonokat az asztalról, E-szériás módban visszateszi őket az eredeti helyükre
 - **1.4.1**: javítás: kis vagy nagyított laptopképernyőn az ablak nem lóg ki többé. Legfeljebb képernyőnyi magas, a címsora mindig látszik, a tartalma pedig görgethető
 - **1.4.0**
   - WinKFP / NFS támogatás: az `NFS.INI` `[INSTANZ]` része automatikusan követi az EDIABAS interfészt, így az NFS OPPS nélkül is elindul

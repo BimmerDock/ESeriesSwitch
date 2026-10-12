@@ -156,6 +156,145 @@ namespace ESeriesSwitch
             WarningBox.Visibility = status.Warnings.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
             RefreshInterface();
+
+            _mode = status.Mode;
+            SyncShortcuts();
+            RefreshShortcuts();
+        }
+
+        SettingsData _settings = AppSettings.Load();
+        ToolMode? _mode;
+        bool _updatingShortcutsUi;
+        string? _shortcutsWarning;
+
+        // Desktop shortcuts: hidden only while the feature is on AND ISTA+ mode is active; otherwise all are put back.
+        // A partial state changes nothing.
+        void SyncShortcuts()
+        {
+            if (_mode is null or ToolMode.Mixed)
+                return;
+
+            bool hide = _settings.HideShortcuts && _mode == ToolMode.Ista;
+            try
+            {
+                var result = DesktopShortcuts.Sync(hide, _settings.ShortcutKeys);
+                var messages = new List<string>();
+                if (result.Skipped.Count > 0)
+                    messages.Add(Loc.T("ShortcutsSkipped", string.Join(", ", result.Skipped), DesktopShortcuts.StoreDir));
+                if (result.Errors.Count > 0)
+                    messages.Add(Loc.T("ShortcutsError", string.Join("\n", result.Errors)));
+                _shortcutsWarning = messages.Count > 0 ? string.Join("\n", messages) : null;
+            }
+            catch (Exception ex)
+            {
+                _shortcutsWarning = Loc.T("ShortcutsError", ex.Message);
+            }
+        }
+
+        void RefreshShortcuts()
+        {
+            _updatingShortcutsUi = true;
+            ShortcutsToggle.IsChecked = _settings.HideShortcuts;
+            ShortcutsExpander.IsExpanded = _settings.ShortcutListExpanded;
+            _updatingShortcutsUi = false;
+
+            ShortcutsPanel.Visibility = _settings.HideShortcuts ? Visibility.Visible : Visibility.Collapsed;
+            if (!_settings.HideShortcuts)
+                return;
+
+            var items = DesktopShortcuts.List();
+            var selected = new HashSet<string>(_settings.ShortcutKeys, StringComparer.OrdinalIgnoreCase);
+            int count = items.Count(i => selected.Contains(i.Key));
+            ShortcutsStatus.Text = Loc.T(_mode switch
+            {
+                ToolMode.Ista => "ShortcutsStatusIsta",
+                ToolMode.ESeries => "ShortcutsStatusESeries",
+                _ => "ShortcutsStatusMixed"
+            }, count);
+
+            ShortcutsWarning.Text = _shortcutsWarning ?? "";
+            ShortcutsWarning.Visibility = _shortcutsWarning != null ? Visibility.Visible : Visibility.Collapsed;
+
+            var secondary = (Brush)FindResource("TextFillColorSecondaryBrush");
+            var hiddenBrush = (Brush)FindResource("ESeriesBrush");
+            ShortcutList.Children.Clear();
+            if (items.Count == 0)
+                ShortcutList.Children.Add(new TextBlock { Text = Loc.T("ShortcutsNone"), Foreground = secondary, Margin = new Thickness(0, 4, 0, 4) });
+
+            foreach (var item in items)
+            {
+                var detail = Loc.T(item.Location == DesktopLocation.User ? "ShortcutUserDesktop" : "ShortcutPublicDesktop")
+                    + "  ·  " + Loc.T(item.IsHidden ? "ShortcutHidden" : "ShortcutVisible");
+                var content = new StackPanel();
+                content.Children.Add(new TextBlock { Text = item.Name });
+                content.Children.Add(new TextBlock
+                {
+                    Text = detail,
+                    FontSize = 11,
+                    Foreground = item.IsHidden ? hiddenBrush : secondary
+                });
+
+                var box = new CheckBox
+                {
+                    Content = content,
+                    Tag = item.Key,
+                    IsChecked = selected.Contains(item.Key),
+                    ToolTip = item.Target,
+                    Margin = new Thickness(0, 2, 0, 2)
+                };
+                box.Checked += ShortcutItem_Changed;
+                box.Unchecked += ShortcutItem_Changed;
+                ShortcutList.Children.Add(box);
+            }
+        }
+
+        void ShortcutsToggle_Changed(object sender, RoutedEventArgs e)
+        {
+            if (_updatingShortcutsUi)
+                return;
+
+            _settings.HideShortcuts = ShortcutsToggle.IsChecked == true;
+            // First time on: preselect the shortcuts of the E-series tools
+            if (_settings.HideShortcuts && _settings.ShortcutKeys.Count == 0)
+                _settings.ShortcutKeys = DesktopShortcuts.List().Where(DesktopShortcuts.IsSuggested).Select(i => i.Key).ToList();
+            AppSettings.Save(_settings);
+
+            SyncShortcuts();
+            RefreshShortcuts();
+        }
+
+        void ShortcutsExpander_Changed(object sender, RoutedEventArgs e)
+        {
+            if (_updatingShortcutsUi)
+                return;
+            _settings.ShortcutListExpanded = ShortcutsExpander.IsExpanded;
+            AppSettings.Save(_settings);
+        }
+
+        // Adds the suggested E-series shortcuts to the selection (nothing is unselected)
+        void SelectSuggestedShortcuts_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = new HashSet<string>(_settings.ShortcutKeys, StringComparer.OrdinalIgnoreCase);
+            foreach (var item in DesktopShortcuts.List().Where(DesktopShortcuts.IsSuggested))
+                if (selected.Add(item.Key))
+                    _settings.ShortcutKeys.Add(item.Key);
+            AppSettings.Save(_settings);
+
+            SyncShortcuts();
+            RefreshShortcuts();
+        }
+
+        void ShortcutItem_Changed(object sender, RoutedEventArgs e)
+        {
+            var box = (CheckBox)sender;
+            var key = (string)box.Tag;
+            _settings.ShortcutKeys.RemoveAll(k => k.Equals(key, StringComparison.OrdinalIgnoreCase));
+            if (box.IsChecked == true)
+                _settings.ShortcutKeys.Add(key);
+            AppSettings.Save(_settings);
+
+            SyncShortcuts();
+            RefreshShortcuts();
         }
 
         InterfaceKind _interfaceKind = InterfaceKind.Other;
@@ -485,7 +624,8 @@ namespace ESeriesSwitch
         void ChangeLanguage(AppLanguage language)
         {
             Loc.Instance.SetLanguage(language);
-            AppSettings.SaveLanguage(language);
+            _settings.Language = language.ToString();
+            AppSettings.Save(_settings);
             RefreshStatus();
         }
 

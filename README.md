@@ -47,6 +47,7 @@ So the legacy tools only work **with** the environment variables, and ISTA+ only
 - **EDIABAS interface selection** (ICOM, ENET, K+DCAN or Offline), with the ICOM IP, the ENET address and the K+DCAN COM port editable in the app.
 - **WinKFP / NFS**: `NFS.INI` automatically uses the same interface as EDIABAS, so NFS starts without an OPPS ([details below](#winkfp--nfs)). Offline avoids the `NET-0009: TIMEOUT` error when no ICOM is connected ([details below](#ediabas-interface-icom--enet--kdcan--offline)).
 - **Restart offer** after switching.
+- **Desktop shortcuts** (optional): the E-series shortcuts disappear from the desktop while ISTA+ is active, so you can see the mode at a glance ([details below](#desktop-shortcuts-optional)).
 - **Warnings** if the EDIABAS folder is missing or if user-level variables could override the system ones.
 - **English and Hungarian** user interface, switchable at any time.
 - **Update notification**: on startup the app checks GitHub for a newer release and shows a *Download* button if there is one.
@@ -168,6 +169,17 @@ Interface_2=
 Interface_3=
 ```
 
+## Desktop shortcuts (optional)
+
+To see at a glance which mode is active, the app can hide the E-series shortcuts from the desktop while ISTA+ is active. The feature is **off by default**. Turn it on in the *Desktop shortcuts* card:
+
+- The card lists every shortcut (`.lnk`, `.url`) on **your desktop** and on the **Public desktop**, each with a checkbox. Once it is set up, collapse the list; the app remembers that.
+- When you first turn it on, the app preselects the shortcuts of the E-series tools: anything installed under `EC-APPS` or pointing into the `INPA`, `NCSEXPER`, `NFS` or `EDIABAS` folders, or named like INPA, Tool32, NCS, WinKFP, NFS or EDIABAS. **ITool Radar and ISTA are never preselected**, because you need them in ISTA+ mode too. Change the selection as you like. **Select suggested** adds the suggested ones to your selection at any time.
+- **ISTA+ mode:** the selected shortcuts disappear from the desktop. **E-series mode:** they come back **to the same place on the desktop**. The app remembers each icon's position when it hides it (Windows itself would put restored icons into the first free slot). Unticking a shortcut, or turning the feature off, puts it back immediately.
+- **Nothing is deleted.** Hidden shortcuts are moved to `C:\ProgramData\ESeriesSwitch\HiddenShortcuts` and moved back to exactly where they came from (`manifest.json` in that folder records every move).
+- If a shortcut with the same name is already back on the desktop, the app never overwrites it. It keeps the hidden copy and tells you.
+- In the *partial* state nothing is changed.
+
 ## What the app changes and what it does not
 
 **Changes:**
@@ -176,10 +188,11 @@ Interface_3=
 - the `Interface` and `LoadWin64` lines in `EDIABAS.INI`, **only** when you click an interface button
 - the ENET ports in `EDIABAS.INI` (`[XEthernet] ControlPort` / `DiagnosticPort`), **only** when you choose *ENET cable* or *ICOM Next*
 - the `Interface` and `Interface_1` … `Interface_3` lines in `NFS.INI` (`[INSTANZ]`), **only** when you choose an interface or click *Sync*
+- the position of the desktop shortcuts you selected, **only** if you turned on *Desktop shortcuts* (moved to `C:\ProgramData\ESeriesSwitch\HiddenShortcuts` and back)
 - the ICOM address in `Rplus.ini` (`[ICOM_P] RemoteHost`), the ENET address in `EDIABAS.INI` (`[XEthernet] RemoteHost`) or the K+DCAN COM port in `obd.ini` (`[OBD] Port`), **only** when you click *Save*
 
 **Creates:**
-- backup files and `settings.json` (the chosen language) in `C:\ProgramData\ESeriesSwitch\`
+- backup files, `settings.json` (language and shortcut selection) and the `HiddenShortcuts` folder in `C:\ProgramData\ESeriesSwitch\`
 
 **Never touches:**
 - user-level environment variables (it only reads them and warns you)
@@ -252,6 +265,7 @@ This repository contains **no** BMW software, data files or other proprietary ma
 
 ## Changelog
 
+- **1.5.0**: optional *Desktop shortcuts* feature: hides the selected E-series shortcuts from the desktop while ISTA+ is active and puts them back in E-series mode, at their original icon positions
 - **1.4.1**: fix: on small / scaled laptop screens the window no longer extends beyond the screen. It is capped to the screen height, keeps its title bar visible, and the content scrolls
 - **1.4.0**
   - WinKFP / NFS support: `NFS.INI` `[INSTANZ]` automatically follows the EDIABAS interface, so NFS starts without an OPPS

@@ -62,6 +62,23 @@
             ["OpenBackups"] = "Backups folder",
             ["About"] = "About",
 
+            // Desktop shortcuts
+            ["ShortcutsHeader"] = "DESKTOP SHORTCUTS",
+            ["ShortcutsToggle"] = "Hide the E-series shortcuts while ISTA+ is active",
+            ["ShortcutsHint"] = "In ISTA+ mode the selected shortcuts disappear from the desktop, and in E-series mode they come back to the same place, so the desktop itself shows which mode is on. Nothing is deleted: hidden shortcuts are kept in C:\\ProgramData\\ESeriesSwitch\\HiddenShortcuts.",
+            ["ShortcutsChoose"] = "Shortcuts to hide",
+            ["ShortcutsSelectSuggested"] = "Select suggested",
+            ["ShortcutsNone"] = "No shortcuts found on the desktop.",
+            ["ShortcutsStatusIsta"] = "{0} selected. They are hidden now (ISTA+ mode).",
+            ["ShortcutsStatusESeries"] = "{0} selected. They disappear when you switch to ISTA+.",
+            ["ShortcutsStatusMixed"] = "{0} selected. Nothing changes while the state is partial.",
+            ["ShortcutUserDesktop"] = "Your desktop",
+            ["ShortcutPublicDesktop"] = "Public desktop",
+            ["ShortcutHidden"] = "hidden",
+            ["ShortcutVisible"] = "visible",
+            ["ShortcutsSkipped"] = "Not restored, because a shortcut with the same name is already on the desktop: {0}. The hidden copy is kept in {1}.",
+            ["ShortcutsError"] = "Some shortcuts could not be moved:\n{0}",
+
             // Update check
             ["UpdateAvailable"] = "A new version is available: v{0} (you have v{1})",
             ["Download"] = "Download",
@@ -162,6 +179,23 @@
             ["Refresh"] = "Frissítés",
             ["OpenBackups"] = "Mentések mappája",
             ["About"] = "Névjegy",
+
+            // Desktop shortcuts
+            ["ShortcutsHeader"] = "ASZTALI PARANCSIKONOK",
+            ["ShortcutsToggle"] = "E-szériás parancsikonok elrejtése, amíg az ISTA+ aktív",
+            ["ShortcutsHint"] = "ISTA+ módban a kiválasztott parancsikonok eltűnnek az asztalról, E-szériás módban ugyanoda kerülnek vissza, így már az asztalon látod, melyik mód aktív. Semmi nem törlődik: az elrejtett parancsikonok itt vannak: C:\\ProgramData\\ESeriesSwitch\\HiddenShortcuts.",
+            ["ShortcutsChoose"] = "Elrejtendő parancsikonok",
+            ["ShortcutsSelectSuggested"] = "Javasoltak kijelölése",
+            ["ShortcutsNone"] = "Nem található parancsikon az asztalon.",
+            ["ShortcutsStatusIsta"] = "{0} kiválasztva. Most el vannak rejtve (ISTA+ mód).",
+            ["ShortcutsStatusESeries"] = "{0} kiválasztva. ISTA+-ra váltáskor eltűnnek az asztalról.",
+            ["ShortcutsStatusMixed"] = "{0} kiválasztva. Részleges állapotban nem változik semmi.",
+            ["ShortcutUserDesktop"] = "Saját asztal",
+            ["ShortcutPublicDesktop"] = "Nyilvános asztal",
+            ["ShortcutHidden"] = "elrejtve",
+            ["ShortcutVisible"] = "látható",
+            ["ShortcutsSkipped"] = "Nem került vissza, mert már van ugyanilyen nevű parancsikon az asztalon: {0}. Az elrejtett példány itt maradt: {1}.",
+            ["ShortcutsError"] = "Néhány parancsikont nem sikerült áthelyezni:\n{0}",
 
             // Update check
             ["UpdateAvailable"] = "Új verzió érhető el: v{0} (a tiéd: v{1})",
